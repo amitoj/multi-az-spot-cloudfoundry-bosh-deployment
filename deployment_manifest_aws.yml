@@ -1,0 +1,1009 @@
+compilation:
+  cloud_properties:
+    availability_zone: REPLACE_ME
+    instance_type: c1.medium
+  network: cf1
+  reuse_compilation_vms: true
+  workers: 6
+director_uuid: f38e81de-d07b-4b56-b691-4f005745575b
+jobs:
+- instances: 0
+  name: ha_proxy_z1
+  networks:
+  - name: cf1
+    static_ips: null
+  properties:
+    ha_proxy:
+      ssl_pem: null
+    networks:
+      apps: cf1
+      management: cf1
+    router:
+      servers:
+        z1:
+        - 10.10.16.15
+        z2: []
+  release: cf
+  resource_pool: router_z1
+  template: haproxy
+- instances: 0
+  name: nats_z1
+  networks:
+  - name: cf1
+    static_ips: []
+  properties:
+    networks:
+      apps: cf1
+      management: cf1
+  release: cf
+  resource_pool: medium_z1
+  templates:
+  - name: nats
+  - name: nats_stream_forwarder
+- instances: 1
+  name: nats_z2
+  networks:
+  - name: cf2
+    static_ips:
+    - 10.10.80.11
+  properties:
+    networks:
+      apps: cf2
+      management: cf2
+  release: cf
+  resource_pool: medium_z2
+  templates:
+  - name: nats
+  - name: nats_stream_forwarder
+- instances: 0
+  name: logs_z1
+  networks:
+  - name: cf1
+    static_ips: []
+  persistent_disk: 100000
+  properties:
+    networks:
+      apps: cf1
+      management: cf1
+  release: cf
+  resource_pool: medium_z1
+  template: syslog_aggregator
+- instances: 0
+  name: logs_z2
+  networks:
+  - name: cf2
+    static_ips: []
+  persistent_disk: 100000
+  properties:
+    networks:
+      apps: cf2
+      management: cf2
+  release: cf
+  resource_pool: medium_z2
+  template: syslog_aggregator
+- instances: 1
+  name: stats_z1
+  networks:
+  - name: cf1
+  properties:
+    networks:
+      apps: cf1
+      management: cf1
+  release: cf
+  resource_pool: small_z1
+  template: collector
+- instances: 0
+  name: nfs_z1
+  networks:
+  - name: cf1
+    static_ips: null
+  persistent_disk: 102400
+  release: cf
+  resource_pool: medium_z1
+  template: debian_nfs_server
+- instances: 0
+  name: postgres_z1
+  networks:
+  - name: cf1
+    static_ips: null
+  persistent_disk: 4096
+  properties:
+    db: databases
+  release: cf
+  resource_pool: medium_z1
+  template: postgres
+- instances: 1
+  name: uaa_z1
+  networks:
+  - name: cf1
+  properties:
+    networks:
+      apps: cf1
+      management: cf1
+  release: cf
+  resource_pool: medium_z1
+  template: uaa
+- instances: 0
+  name: uaa_z2
+  networks:
+  - name: cf2
+  properties:
+    networks:
+      apps: cf2
+      management: cf2
+  release: cf
+  resource_pool: medium_z2
+  template: uaa
+- instances: 1
+  name: login_z1
+  networks:
+  - name: cf1
+  properties:
+    networks:
+      apps: cf1
+      management: cf1
+  release: cf
+  resource_pool: medium_z1
+  template: login
+- instances: 1
+  name: api_z1
+  networks:
+  - name: cf1
+  persistent_disk: 0
+  properties:
+    ccdb: ccdb
+    loggregator_endpoint:
+      host: 10.10.16.34
+    networks:
+      apps: cf1
+      management: cf1
+    nfs_server: null
+  release: cf
+  resource_pool: large_z1
+  templates:
+  - name: cloud_controller_ng
+- instances: 0
+  name: api_z2
+  networks:
+  - name: cf2
+  persistent_disk: 0
+  properties:
+    ccdb: ccdb
+    loggregator_endpoint:
+      host: 10.10.80.34
+    networks:
+      apps: cf2
+      management: cf2
+    nfs_server: null
+  release: cf
+  resource_pool: large_z2
+  templates:
+  - name: cloud_controller_ng
+- instances: 1
+  name: clock_global
+  networks:
+  - name: cf1
+  persistent_disk: 0
+  properties:
+    ccdb: ccdb
+    loggregator_endpoint:
+      host: 10.10.16.34
+    networks:
+      apps: cf1
+      management: cf1
+  release: cf
+  resource_pool: medium_z1
+  template: cloud_controller_clock
+- instances: 1
+  name: api_worker_z1
+  networks:
+  - name: cf1
+  persistent_disk: 0
+  properties:
+    ccdb: ccdb
+    loggregator_endpoint:
+      host: 10.10.16.34
+    networks:
+      apps: cf1
+      management: cf1
+    nfs_server: null
+  release: cf
+  resource_pool: small_z1
+  template: cloud_controller_worker
+- instances: 1
+  name: api_worker_z2
+  networks:
+  - name: cf2
+  persistent_disk: 0
+  properties:
+    ccdb: ccdb
+    loggregator_endpoint:
+      host: 10.10.80.34
+    networks:
+      apps: cf2
+      management: cf2
+    nfs_server: null
+  release: cf
+  resource_pool: small_z2
+  template: cloud_controller_worker
+- instances: 1
+  name: etcd_leader_z1
+  networks:
+  - name: cf1
+    static_ips:
+    - 10.10.16.19
+  persistent_disk: 10024
+  properties:
+    networks:
+      apps: cf1
+      management: cf1
+  release: cf
+  resource_pool: medium_z1
+  templates:
+  - name: etcd
+    release: cf
+  - name: etcd_metrics_server
+    release: cf
+- instances: 1
+  name: etcd_z1
+  networks:
+  - name: cf1
+    static_ips:
+    - 10.10.16.20
+  persistent_disk: 10024
+  properties:
+    leader_ip: 10.10.16.19
+    networks:
+      apps: cf1
+      management: cf1
+  release: cf
+  resource_pool: medium_z1
+  templates:
+  - name: etcd
+    release: cf
+  - name: etcd_metrics_server
+    release: cf
+- instances: 1
+  name: etcd_z2
+  networks:
+  - name: cf2
+    static_ips:
+    - 10.10.80.19
+  persistent_disk: 10024
+  properties:
+    leader_ip: 10.10.16.19
+    networks:
+      apps: cf2
+      management: cf2
+  release: cf
+  resource_pool: medium_z2
+  templates:
+  - name: etcd
+    release: cf
+  - name: etcd_metrics_server
+    release: cf
+- instances: 1
+  name: hm9000_z1
+  networks:
+  - name: cf1
+  properties:
+    etcd_ips:
+    - 10.10.16.19
+    - 10.10.16.20
+    - 10.10.80.19
+    networks:
+      apps: cf1
+      management: cf1
+  release: cf
+  resource_pool: medium_z1
+  template: hm9000
+- instances: 1
+  name: hm9000_z2
+  networks:
+  - name: cf2
+  properties:
+    etcd_ips:
+    - 10.10.16.19
+    - 10.10.16.20
+    - 10.10.80.19
+    networks:
+      apps: cf2
+      management: cf2
+  release: cf
+  resource_pool: medium_z2
+  template: hm9000
+- instances: 1
+  name: runner_z1
+  networks:
+  - name: cf1
+    static_ips: null
+  properties:
+    loggregator_endpoint:
+      host: 10.10.16.34
+    networks:
+      apps: cf1
+      management: cf1
+  release: cf
+  resource_pool: runner_z1
+  templates:
+  - name: dea_next
+  - name: dea_logging_agent
+  update:
+    max_in_flight: 1
+- instances: 0
+  name: runner_z2
+  networks:
+  - name: cf2
+    static_ips: null
+  properties:
+    loggregator_endpoint:
+      host: 10.10.80.34
+    networks:
+      apps: cf2
+      management: cf2
+  release: cf
+  resource_pool: runner_z2
+  templates:
+  - name: dea_next
+  - name: dea_logging_agent
+  update:
+    max_in_flight: 1
+- instances: 1
+  name: loggregator_z1
+  networks:
+  - name: cf1
+    static_ips:
+    - 10.10.16.31
+  properties:
+    etcd_ips:
+    - 10.10.16.19
+    - 10.10.16.20
+    - 10.10.80.19
+    networks:
+      apps: cf1
+      management: cf1
+  release: cf
+  resource_pool: medium_z1
+  template: loggregator
+- instances: 1
+  name: loggregator_z2
+  networks:
+  - name: cf2
+    static_ips:
+    - 10.10.80.31
+  properties:
+    etcd_ips:
+    - 10.10.16.19
+    - 10.10.16.20
+    - 10.10.80.19
+    networks:
+      apps: cf2
+      management: cf2
+  release: cf
+  resource_pool: medium_z2
+  template: loggregator
+- instances: 1
+  name: loggregator_trafficcontroller_z1
+  networks:
+  - name: cf1
+    static_ips:
+    - 10.10.16.34
+  properties:
+    networks:
+      apps: cf1
+      management: cf1
+    traffic_controller:
+      zone: z1
+  release: cf
+  resource_pool: small_z1
+  template: loggregator_trafficcontroller
+- instances: 1
+  name: loggregator_trafficcontroller_z2
+  networks:
+  - name: cf2
+    static_ips:
+    - 10.10.80.34
+  properties:
+    networks:
+      apps: cf2
+      management: cf2
+    traffic_controller:
+      zone: z2
+  release: cf
+  resource_pool: small_z2
+  template: loggregator_trafficcontroller
+- instances: 1
+  name: router_z1
+  networks:
+  - name: cf1
+    static_ips:
+    - 10.10.16.15
+  properties:
+    loggregator_endpoint:
+      host: 10.10.16.34
+    networks:
+      apps: cf1
+      management: cf1
+  release: cf
+  resource_pool: router_z1
+  template: gorouter
+- instances: 0
+  name: router_z2
+  networks:
+  - name: cf2
+    static_ips: []
+  properties:
+    loggregator_endpoint:
+      host: 10.10.80.34
+    networks:
+      apps: cf2
+      management: cf2
+  release: cf
+  resource_pool: router_z2
+  template: gorouter
+meta:
+  environment: apps.cityindex.logsearch.io
+  stemcell:
+    name: bosh-aws-xen-ubuntu
+    version: latest
+name: apps.cityindex.logsearch.io
+networks:
+- name: cf1
+  subnets:
+  - cloud_properties:
+      security_groups:
+      - cf
+      subnet: REPLACE_ME
+    dns:
+    - 10.10.0.2
+    gateway: 10.10.16.1
+    name: default_unused
+    range: 10.10.16.0/20
+    reserved:
+    - 10.10.16.2 - 10.10.16.9
+    static:
+    - 10.10.16.10 - 10.10.16.255
+  type: manual
+- name: cf2
+  subnets:
+  - cloud_properties:
+      security_groups:
+      - cf
+      subnet: REPLACE_ME
+    dns:
+    - 10.10.0.2
+    gateway: 10.10.80.1
+    name: default_unused
+    range: 10.10.80.0/20
+    reserved:
+    - 10.10.80.2 - 10.10.80.9
+    static:
+    - 10.10.80.10 - 10.10.80.255
+  type: manual
+properties:
+  app_domains:
+  - apps.cityindex.logsearch.io
+  cc:
+    app_events:
+      cutoff_age_in_days: 31
+    app_usage_events:
+      cutoff_age_in_days: 31
+    audit_events:
+      cutoff_age_in_days: 31
+    billing_event_writing_enabled: true
+    broker_client_timeout_seconds: 70
+    buildpacks:
+      buildpack_directory_key: apps.cityindex.logsearch.io-cc-buildpacks
+      cdn: null
+      fog_connection:
+        aws_access_key_id: REPLACE_ME
+        aws_secret_access_key: REPLACE_ME
+        provider: AWS
+    bulk_api_password: REPLACE_ME
+    client_max_body_size: 1536M
+    db_encryption_key: REPLACE_ME
+    default_app_memory: 1024
+    default_buildpacks:
+    - name: java_buildpack
+      package: buildpack_java
+    - name: ruby_buildpack
+      package: buildpack_ruby
+    - name: nodejs_buildpack
+      package: buildpack_nodejs
+    default_quota_definition: default
+    development_mode: false
+    diego: false
+    disable_custom_buildpacks: false
+    droplets:
+      cdn: null
+      droplet_directory_key: apps.cityindex.logsearch.io-cc-droplets
+      fog_connection:
+        aws_access_key_id: REPLACE_ME
+        aws_secret_access_key: REPLACE_ME
+        provider: AWS
+    hm9000_noop: false
+    install_buildpacks:
+    - name: java_buildpack
+      package: buildpack_java
+    - name: ruby_buildpack
+      package: buildpack_ruby
+    - name: nodejs_buildpack
+      package: buildpack_nodejs
+    jobs:
+      app_bits_packer:
+        timeout_in_seconds: null
+      app_events_cleanup:
+        timeout_in_seconds: null
+      app_usage_events_cleanup:
+        timeout_in_seconds: null
+      blobstore_delete:
+        timeout_in_seconds: null
+      blobstore_upload:
+        timeout_in_seconds: null
+      droplet_deletion:
+        timeout_in_seconds: null
+      droplet_upload:
+        timeout_in_seconds: null
+      global:
+        timeout_in_seconds: 14400
+      model_deletion:
+        timeout_in_seconds: null
+    maximum_app_disk_in_mb: 2048
+    newrelic:
+      capture_params: false
+      developer_mode: false
+      environment_name: apps.cityindex.logsearch.io
+      license_key: null
+      monitor_mode: false
+      transaction_tracer:
+        enabled: true
+        record_sql: obfuscated
+    packages:
+      app_package_directory_key: apps.cityindex.logsearch.io-cc-packages
+      cdn: null
+      fog_connection:
+        aws_access_key_id: REPLACE_ME
+        aws_secret_access_key: REPLACE_ME
+        provider: AWS
+      max_package_size: 1073741824
+    quota_definitions:
+      default:
+        memory_limit: 10240
+        non_basic_services_allowed: true
+        total_routes: 1000
+        total_services: 100
+    resource_pool:
+      cdn: null
+      fog_connection:
+        aws_access_key_id: REPLACE_ME
+        aws_secret_access_key: REPLACE_ME
+        provider: AWS
+      resource_directory_key: apps.cityindex.logsearch.io-cc-resources
+    srv_api_uri: http://api.apps.cityindex.logsearch.io
+    staging_upload_password: REPLACE_ME
+    staging_upload_user: REPLACE_ME
+    system_buildpacks:
+    - name: java_buildpack
+      package: buildpack_java
+    - name: ruby_buildpack
+      package: buildpack_ruby
+    - name: nodejs_buildpack
+      package: buildpack_nodejs
+    tasks_disabled: false
+    user_buildpacks: []
+  ccdb:
+    address: REPLACE_ME
+    databases:
+    - name: ccdb
+      tag: cc
+    db_scheme: mysql
+    port: 3306
+    roles:
+    - name: REPLACE_ME
+      password: REPLACE_ME
+      tag: admin
+  ccdb_ng:
+    address: REPLACE_ME
+    databases:
+    - name: ccdb
+      tag: cc
+    db_scheme: mysql
+    port: 3306
+    roles:
+    - name: REPLACE_ME
+      password: REPLACE_ME
+      tag: admin
+  ccng:
+    app_events:
+      cutoff_age_in_days: 31
+    app_usage_events:
+      cutoff_age_in_days: 31
+    audit_events:
+      cutoff_age_in_days: 31
+    billing_event_writing_enabled: true
+    broker_client_timeout_seconds: 70
+    buildpacks:
+      buildpack_directory_key: apps.cityindex.logsearch.io-cc-buildpacks
+      cdn: null
+      fog_connection:
+        aws_access_key_id: REPLACE_ME
+        aws_secret_access_key: REPLACE_ME
+        provider: AWS
+    bulk_api_password: REPLACE_ME
+    client_max_body_size: 1536M
+    db_encryption_key: REPLACE_ME
+    default_app_memory: 1024
+    default_buildpacks:
+    - name: java_buildpack
+      package: buildpack_java
+    - name: ruby_buildpack
+      package: buildpack_ruby
+    - name: nodejs_buildpack
+      package: buildpack_nodejs
+    default_quota_definition: default
+    development_mode: false
+    diego: false
+    disable_custom_buildpacks: false
+    droplets:
+      cdn: null
+      droplet_directory_key: apps.cityindex.logsearch.io-cc-droplets
+      fog_connection:
+        aws_access_key_id: REPLACE_ME
+        aws_secret_access_key: REPLACE_ME
+        provider: AWS
+    hm9000_noop: false
+    install_buildpacks:
+    - name: java_buildpack
+      package: buildpack_java
+    - name: ruby_buildpack
+      package: buildpack_ruby
+    - name: nodejs_buildpack
+      package: buildpack_nodejs
+    jobs:
+      app_bits_packer:
+        timeout_in_seconds: null
+      app_events_cleanup:
+        timeout_in_seconds: null
+      app_usage_events_cleanup:
+        timeout_in_seconds: null
+      blobstore_delete:
+        timeout_in_seconds: null
+      blobstore_upload:
+        timeout_in_seconds: null
+      droplet_deletion:
+        timeout_in_seconds: null
+      droplet_upload:
+        timeout_in_seconds: null
+      global:
+        timeout_in_seconds: 14400
+      model_deletion:
+        timeout_in_seconds: null
+    maximum_app_disk_in_mb: 2048
+    newrelic:
+      capture_params: false
+      developer_mode: false
+      environment_name: apps.cityindex.logsearch.io
+      license_key: null
+      monitor_mode: false
+      transaction_tracer:
+        enabled: true
+        record_sql: obfuscated
+    packages:
+      app_package_directory_key: apps.cityindex.logsearch.io-cc-packages
+      cdn: null
+      fog_connection:
+        aws_access_key_id: REPLACE_ME
+        aws_secret_access_key: REPLACE_ME
+        provider: AWS
+      max_package_size: 1073741824
+    quota_definitions:
+      default:
+        memory_limit: 10240
+        non_basic_services_allowed: true
+        total_routes: 1000
+        total_services: 100
+    resource_pool:
+      cdn: null
+      fog_connection:
+        aws_access_key_id: REPLACE_ME
+        aws_secret_access_key: REPLACE_ME
+        provider: AWS
+      resource_directory_key: apps.cityindex.logsearch.io-cc-resources
+    srv_api_uri: http://api.apps.cityindex.logsearch.io
+    staging_upload_password: REPLACE_ME
+    staging_upload_user: REPLACE_ME
+    system_buildpacks:
+    - name: java_buildpack
+      package: buildpack_java
+    - name: ruby_buildpack
+      package: buildpack_ruby
+    - name: nodejs_buildpack
+      package: buildpack_nodejs
+    tasks_disabled: false
+    user_buildpacks: []
+  collector:
+    datadog_api_key: ""
+    datadog_application_key: ""
+    deployment_name: apps.cityindex.logsearch.io
+    use_datadog: true
+    use_tsdb: false
+  databases: null
+  dea_next:
+    allow_networks:
+    - 10.10.0.2/32
+    deny_networks:
+    - 169.254.0.0/16
+    - 10.10.0.0/24
+    - 10.10.16.0/20
+    - 10.10.80.0/20
+    directory_server_protocol: https
+    disk_mb: 100000
+    disk_overcommit_factor: 2
+    evacuation_bail_out_time_in_seconds: 600
+    instance_disk_inode_limit: 200000
+    kernel_network_tuning_enabled: true
+    logging_level: debug
+    memory_mb: 81960
+    memory_overcommit_factor: 3
+    staging_disk_inode_limit: 200000
+    staging_disk_limit_mb: 4096
+  description: Cloud Foundry sponsored by Pivotal
+  disk_quota_enabled: true
+  domain: apps.cityindex.logsearch.io
+  etcd_metrics_server:
+    nats:
+      machines:
+      - 10.10.80.11
+      password: REPLACE_ME
+      username: REPLACE_ME
+  logger_endpoint:
+    port: 4443
+  loggregator:
+    blacklisted_syslog_ranges:
+    - end: 10.10.31.255
+      start: 10.10.16.0
+    - end: 10.10.95.255
+      start: 10.10.80.0
+    debug: false
+    maxRetainedLogMessages: 100
+    servers:
+      z1:
+      - 10.10.16.31
+      z2:
+      - 10.10.80.31
+  loggregator_endpoint:
+    shared_secret: REPLACE_ME
+  login:
+    brand: oss
+    catalina_opts: -Xmx768m -XX:MaxPermSize=256m
+    links:
+      home: https://console.apps.cityindex.logsearch.io
+      passwd: https://console.apps.cityindex.logsearch.io/password_resets/new
+      signup: https://console.apps.cityindex.logsearch.io/register
+    protocol: http
+    uaa_certificate: null
+    url: null
+  nats:
+    address: 10.10.80.11
+    debug: false
+    machines:
+    - 10.10.80.11
+    password: REPLACE_ME
+    port: 4222
+    trace: false
+    user: REPLACE_ME
+  nfs_server:
+    address: null
+    network: 10.10.16.0/20
+  opentsdb: null
+  request_timeout_in_seconds: 300
+  router:
+    status:
+      password: REPLACE_ME
+      user: REPLACE_ME
+  ssl:
+    skip_cert_verify: false
+  support_address: http://support.cloudfoundry.com
+  syslog_aggregator: null
+  system_domain: apps.cityindex.logsearch.io
+  system_domain_organization: null
+  uaa:
+    admin:
+      client_secret: REPLACE_ME
+    batch:
+      password: REPLACE_ME
+      username: REPLACE_ME
+    catalina_opts: -Xmx768m -XX:MaxPermSize=256m
+    cc:
+      client_secret: REPLACE_ME
+    clients:
+      app-direct:
+        access-token-validity: 1209600
+        authorities: app_direct_invoice.write
+        authorized-grant-types: authorization_code,client_credentials,password,refresh_token,implicit
+        override: true
+        redirect-uri: https://console.apps.cityindex.logsearch.io
+        refresh-token-validity: 1209600
+        secret: REPLACE_ME
+      billing:
+        secret: REPLACE_ME
+      developer_console:
+        access-token-validity: 1209600
+        authorities: scim.write,scim.read,cloud_controller.read,cloud_controller.write,password.write,uaa.admin,uaa.resource,cloud_controller.admin,billing.admin
+        authorized-grant-types: authorization_code,client_credentials
+        override: true
+        redirect-uri: https://console.apps.cityindex.logsearch.io/oauth/callback
+        refresh-token-validity: 1209600
+        scope: openid,cloud_controller.read,cloud_controller.write,password.write,console.admin,console.support
+        secret: REPLACE_ME
+      login:
+        authorities: oauth.login
+        authorized-grant-types: authorization_code,client_credentials,refresh_token
+        override: true
+        redirect-uri: https://login.apps.cityindex.logsearch.io
+        scope: openid,oauth.approvals
+        secret: REPLACE_ME
+      portal:
+        secret: REPLACE_ME
+      servicesmgmt:
+        authorities: uaa.resource,oauth.service,clients.read,clients.write,clients.secret
+        authorized-grant-types: authorization_code,client_credentials,password,implicit
+        autoapprove: true
+        override: true
+        redirect-uri: http://servicesmgmt.apps.cityindex.logsearch.io/auth/cloudfoundry/callback
+        scope: openid,cloud_controller.read,cloud_controller.write
+        secret: REPLACE_ME
+      space-mail:
+        access-token-validity: 1209600
+        authorities: scim.read,scim.write,cloud_controller.admin
+        authorized-grant-types: client_credentials
+        override: true
+        refresh-token-validity: 1209600
+        secret: REPLACE_ME
+      support-services:
+        access-token-validity: 1209600
+        authorities: portal.users.read
+        authorized-grant-types: authorization_code,client_credentials
+        redirect-uri: http://support-signon.apps.cityindex.logsearch.io
+        refresh-token-validity: 1209600
+        scope: scim.write,scim.read,openid,cloud_controller.read,cloud_controller.write
+        secret: REPLACE_ME
+    jwt:
+      signing_key: '-----BEGIN RSA PRIVATE KEY-----
+
+        REPLACE_ME
+
+        -----END RSA PRIVATE KEY-----
+
+'
+      verification_key: '-----BEGIN PUBLIC KEY-----
+
+        REPLACE_ME
+
+        -----END PUBLIC KEY-----
+
+'
+    login:
+      client_secret: null
+    no_ssl: true
+    scim:
+      userids_enabled: false
+      users:
+      - REPLACE_ME_USERNAME|REPLACE_ME_PASSWORD|scim.write,scim.read,openid,cloud_controller.admin
+    url: https://uaa.apps.cityindex.logsearch.io
+  uaadb:
+    address: REPLACE_ME
+    databases:
+    - name: uaadb
+      tag: uaa
+    db_scheme: mysql
+    port: 3306
+    roles:
+    - name: REPLACE_ME
+      password: REPLACE_ME
+      tag: admin
+releases:
+- name: cf
+  version: 169
+resource_pools:
+- cloud_properties:
+    availability_zone: REPLACE_ME
+    instance_type: m1.small
+  name: small_z1
+  network: cf1
+  size: 3
+  stemcell:
+    name: bosh-aws-xen-ubuntu
+    version: latest
+- cloud_properties:
+    availability_zone: REPLACE_ME
+    instance_type: m1.small
+  name: small_z2
+  network: cf2
+  size: 2
+  stemcell:
+    name: bosh-aws-xen-ubuntu
+    version: latest
+- cloud_properties:
+    availability_zone: REPLACE_ME
+    instance_type: m1.medium
+  name: medium_z1
+  network: cf1
+  size: 7
+  stemcell:
+    name: bosh-aws-xen-ubuntu
+    version: latest
+- cloud_properties:
+    availability_zone: REPLACE_ME
+    instance_type: m1.medium
+  name: medium_z2
+  network: cf2
+  size: 4
+  stemcell:
+    name: bosh-aws-xen-ubuntu
+    version: latest
+- cloud_properties:
+    availability_zone: REPLACE_ME
+    instance_type: m1.large
+  name: large_z1
+  network: cf1
+  size: 1
+  stemcell:
+    name: bosh-aws-xen-ubuntu
+    version: latest
+- cloud_properties:
+    availability_zone: REPLACE_ME
+    instance_type: m1.large
+  name: large_z2
+  network: cf2
+  size: 0
+  stemcell:
+    name: bosh-aws-xen-ubuntu
+    version: latest
+- cloud_properties:
+    availability_zone: REPLACE_ME
+    instance_type: m1.large
+  name: runner_z1
+  network: cf1
+  size: 1
+  stemcell:
+    name: bosh-aws-xen-ubuntu
+    version: latest
+- cloud_properties:
+    availability_zone: REPLACE_ME
+    instance_type: m1.large
+  name: runner_z2
+  network: cf2
+  size: 0
+  stemcell:
+    name: bosh-aws-xen-ubuntu
+    version: latest
+- cloud_properties:
+    availability_zone: REPLACE_ME
+    elbs:
+    - cfrouter
+    instance_type: m1.medium
+  name: router_z1
+  network: cf1
+  size: 1
+  stemcell:
+    name: bosh-aws-xen-ubuntu
+    version: latest
+- cloud_properties:
+    availability_zone: REPLACE_ME
+    elbs:
+    - cfrouter
+    instance_type: m1.medium
+  name: router_z2
+  network: cf2
+  size: 0
+  stemcell:
+    name: bosh-aws-xen-ubuntu
+    version: latest
+update:
+  canaries: 1
+  canary_watch_time: 30000-600000
+  max_in_flight: 1
+  serial: true
+  update_watch_time: 5000-600000
+

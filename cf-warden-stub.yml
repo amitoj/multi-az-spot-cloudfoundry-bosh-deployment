@@ -1,0 +1,147 @@
+---
+meta:
+  environment: apps.cityindex.logsearch.io
+
+  stemcell:
+    name: bosh-warden-boshlite-ubuntu
+    version: latest
+
+director_uuid: f0588560-08a8-4ae2-914a-b9e8b12d9303
+
+releases:
+  - name: cf
+    version: 169
+
+networks:
+  - name: z1_public
+    type: manual
+    subnets:
+    - range: 10.13.0.0/21
+      name: eu-west-1a/public
+      reserved:
+      - 10.13.0.0 - 10.13.0.9
+      static:
+      - 10.13.0.0 - 10.13.0.254  # How do we avoid conflicting with other deployments in this subnet?
+      gateway: 10.13.0.0.1
+    cloud_properties:
+      subnet: "subnet-aaaaaa"
+      security_groups:
+      - "vpc-internal-all"
+      - "trusted-web"
+  - name: z1_private
+    type: manual
+    subnets:
+    - range: 10.13.8.0/21
+      name: eu-west-1a/public
+      reserved:
+      - 10.13.8.2 - 10.13.8.9
+      static:
+      - 10.13.8.10 - 10.13.8.254
+      gateway: 10.13.8.1
+    cloud_properties:
+      subnet: "subnet-bbbbbb"
+      security_groups:
+      - "vpc-internal-all"
+  - name: z2_public
+    type: manual
+    subnets:
+    - range: 10.13.16.0.0/21
+      name: eu-west-1b/public
+      reserved:
+      - 10.13.16.2 - 10.13.16.9
+      static:
+      - 10.13.16.10 - 10.13.16.254
+      gateway: 10.13.16.1
+      cloud_properties:
+        subnet: "subnet-ccccccc"
+        security_groups:
+        - "vpc-internal-all"
+        - "trusted-web"
+  - name: z2_private
+    type: manual
+    subnets:
+    - range: 10.13.24.0.0/21
+      name: eu-west-1b/private
+      reserved:
+      - 10.13.24.2 - 10.13.24.9
+      static:
+      - 10.13.24.10 - 10.13.24.254
+      gateway: 10.13.24.1
+      cloud_properties:
+        subnet: "subnet-dddddd"
+        security_groups:
+        - "vpc-internal-all"
+
+jobs:
+  - name: loggregator_z1
+    instances: 1
+
+  - name: loggregator_z2
+    instances: 1
+
+  - name: router_z2
+    instances: 0
+
+  - name: runner_z2
+    instances: 0
+
+  - name: uaa_z2
+    instances: 0
+
+  - name: api_z2
+    instances: 0
+
+  - name: taskmaster_z2
+    instances: 0
+
+properties:
+  domain: apps.cityindex.logsearch.io
+
+  cc:
+    srv_api_uri: (( "http://api." domain ))
+
+  dea_next:
+    memory_mb: 81960
+    disk_mb: 100000
+
+  template_only:
+    aws:
+      access_key_id: REPLACE_ME
+      secret_access_key: REPLACE_ME
+      availability_zone: REPLACE_ME
+      availability_zone2: REPLACE_ME
+      subnet_ids:
+        cf1: REPLACE_ME
+        cf2: REPLACE_ME
+
+  ccdb: &ccdb
+    db_scheme: mysql
+    roles:
+    - tag: admin
+      name: REPLACE_ME
+      password: REPLACE_ME
+    databases:
+    - tag: cc
+      name: ccdb
+    address: REPLACE_ME
+    port: 3306
+
+  uaadb:
+    db_scheme: mysql
+    roles:
+    - tag: admin
+      name: REPLACE_ME
+      password: REPLACE_ME
+    databases:
+    - tag: uaa
+      name: uaadb
+    address: REPLACE_ME
+    port: 3306
+
+  ccdb_ng: *ccdb
+
+  login:
+    protocol: http
+
+  uaa:
+    no_ssl: true
