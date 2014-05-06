@@ -17,12 +17,14 @@ The under reported price is that of the AWS spot market; which can be up to [*10
 | r3.xlarge | $358 | $29 |
 
 There are only 2 differences between the AWS spot instances and AWS on demand instances.
+
 1.  Spot instances take longer to start (5 min vs 1 min)
 2.  Spot instances "fail" more frequently; because when spot prices move above your bid price your instance gets terminate.
 
 You might think that 2 would prevent you from using spot to host "always on" services like Cloud Foundry.
 
 Except that:
+
 1. There is very little spot contention in regions like eu-west-1; so spot prices are generally flat
 2. Spot contention seems to be isolated to a single AZ
 
