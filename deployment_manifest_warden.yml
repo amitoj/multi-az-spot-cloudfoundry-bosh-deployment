@@ -80,7 +80,8 @@ jobs:
       servers:
         z1:
         - 10.244.0.22
-        z2: []
+        z2:
+        - 10.244.2.22
   release: cf
   resource_pool: router_z1
   template: haproxy
@@ -419,12 +420,11 @@ jobs:
   release: cf
   resource_pool: medium_z1
   template: loggregator
-- instances: 1
+- instances: 0
   name: loggregator_z2
   networks:
   - name: cf2
-    static_ips:
-    - 10.244.2.14
+    static_ips: []
   properties:
     etcd_ips:
     - 10.244.0.38
@@ -478,11 +478,12 @@ jobs:
   release: cf
   resource_pool: router_z1
   template: gorouter
-- instances: 0
+- instances: 1
   name: router_z2
   networks:
   - name: cf2
-    static_ips: []
+    static_ips:
+    - 10.244.2.22
   properties:
     loggregator_endpoint:
       host: null
@@ -493,11 +494,11 @@ jobs:
   resource_pool: router_z2
   template: gorouter
 meta:
-  environment: apps.cityindex.logsearch.io
+  environment: cf-warden
   stemcell:
     name: bosh-warden-boshlite-ubuntu
     version: latest
-name: apps.cityindex.logsearch.io
+name: cf-warden
 networks:
 - name: cf1
   subnets:
@@ -2173,7 +2174,7 @@ networks:
     static: []
 properties:
   app_domains:
-  - apps.cityindex.logsearch.io
+  - 10.244.0.34.xip.io
   cc:
     app_events:
       cutoff_age_in_days: 31
@@ -2184,14 +2185,14 @@ properties:
     billing_event_writing_enabled: true
     broker_client_timeout_seconds: 70
     buildpacks:
-      buildpack_directory_key: apps.cityindex.logsearch.io-cc-buildpacks
+      buildpack_directory_key: 10.244.0.34.xip.io-cc-buildpacks
       cdn: null
       fog_connection:
         local_root: /var/vcap/store
         provider: Local
-    bulk_api_password: REPLACE_ME
+    bulk_api_password: n8pz0saqu5Vib0f5W1RV
     client_max_body_size: 1536M
-    db_encryption_key: REPLACE_ME
+    db_encryption_key: n8pz0saqu5Vib0f5W1RV
     default_app_memory: 256
     default_buildpacks:
     - name: java_buildpack
@@ -2206,7 +2207,7 @@ properties:
     disable_custom_buildpacks: false
     droplets:
       cdn: null
-      droplet_directory_key: apps.cityindex.logsearch.io-cc-droplets
+      droplet_directory_key: 10.244.0.34.xip.io-cc-droplets
       fog_connection:
         local_root: /var/vcap/store
         provider: Local
@@ -2241,14 +2242,14 @@ properties:
     newrelic:
       capture_params: false
       developer_mode: false
-      environment_name: apps.cityindex.logsearch.io
+      environment_name: cf-warden
       license_key: null
       monitor_mode: false
       transaction_tracer:
         enabled: true
         record_sql: obfuscated
     packages:
-      app_package_directory_key: apps.cityindex.logsearch.io-cc-packages
+      app_package_directory_key: 10.244.0.34.xip.io-cc-packages
       cdn: null
       fog_connection:
         local_root: /var/vcap/store
@@ -2265,10 +2266,10 @@ properties:
       fog_connection:
         local_root: /var/vcap/store
         provider: Local
-      resource_directory_key: apps.cityindex.logsearch.io-cc-resources
-    srv_api_uri: http://api.apps.cityindex.logsearch.io
-    staging_upload_password: REPLACE_ME
-    staging_upload_user: REPLACE_ME
+      resource_directory_key: 10.244.0.34.xip.io-cc-resources
+    srv_api_uri: https://api.10.244.0.34.xip.io
+    staging_upload_password: n8pz0saqu5Vib0f5W1RV
+    staging_upload_user: n8pz0saqu5Vib0f5W1RV
     system_buildpacks:
     - name: java_buildpack
       package: buildpack_java
@@ -2279,27 +2280,28 @@ properties:
     tasks_disabled: false
     user_buildpacks: []
   ccdb:
-    address: REPLACE_ME
+    address: 10.244.0.30
     databases:
     - citext: true
       name: ccdb
       tag: cc
-    db_scheme: mysql
-    port: 3306
+    db_scheme: postgres
+    port: 5524
     roles:
     - name: ccadmin
       password: admin
       tag: admin
   ccdb_ng:
-    address: REPLACE_ME
+    address: 10.244.0.30
     databases:
-    - name: ccdb
+    - citext: true
+      name: ccdb
       tag: cc
-    db_scheme: mysql
-    port: 3306
+    db_scheme: postgres
+    port: 5524
     roles:
-    - name: REPLACE_ME
-      password: REPLACE_ME
+    - name: ccadmin
+      password: admin
       tag: admin
   ccng:
     app_events:
@@ -2311,14 +2313,14 @@ properties:
     billing_event_writing_enabled: true
     broker_client_timeout_seconds: 70
     buildpacks:
-      buildpack_directory_key: apps.cityindex.logsearch.io-cc-buildpacks
+      buildpack_directory_key: 10.244.0.34.xip.io-cc-buildpacks
       cdn: null
       fog_connection:
         local_root: /var/vcap/store
         provider: Local
-    bulk_api_password: REPLACE_ME
+    bulk_api_password: n8pz0saqu5Vib0f5W1RV
     client_max_body_size: 1536M
-    db_encryption_key: REPLACE_ME
+    db_encryption_key: n8pz0saqu5Vib0f5W1RV
     default_app_memory: 256
     default_buildpacks:
     - name: java_buildpack
@@ -2333,7 +2335,7 @@ properties:
     disable_custom_buildpacks: false
     droplets:
       cdn: null
-      droplet_directory_key: apps.cityindex.logsearch.io-cc-droplets
+      droplet_directory_key: 10.244.0.34.xip.io-cc-droplets
       fog_connection:
         local_root: /var/vcap/store
         provider: Local
@@ -2368,14 +2370,14 @@ properties:
     newrelic:
       capture_params: false
       developer_mode: false
-      environment_name: apps.cityindex.logsearch.io
+      environment_name: cf-warden
       license_key: null
       monitor_mode: false
       transaction_tracer:
         enabled: true
         record_sql: obfuscated
     packages:
-      app_package_directory_key: apps.cityindex.logsearch.io-cc-packages
+      app_package_directory_key: 10.244.0.34.xip.io-cc-packages
       cdn: null
       fog_connection:
         local_root: /var/vcap/store
@@ -2392,10 +2394,10 @@ properties:
       fog_connection:
         local_root: /var/vcap/store
         provider: Local
-      resource_directory_key: apps.cityindex.logsearch.io-cc-resources
-    srv_api_uri: http://api.apps.cityindex.logsearch.io
-    staging_upload_password: REPLACE_ME
-    staging_upload_user: REPLACE_ME
+      resource_directory_key: 10.244.0.34.xip.io-cc-resources
+    srv_api_uri: https://api.10.244.0.34.xip.io
+    staging_upload_password: n8pz0saqu5Vib0f5W1RV
+    staging_upload_user: n8pz0saqu5Vib0f5W1RV
     system_buildpacks:
     - name: java_buildpack
       package: buildpack_java
@@ -2408,7 +2410,7 @@ properties:
   collector:
     datadog_api_key: ""
     datadog_application_key: ""
-    deployment_name: apps.cityindex.logsearch.io
+    deployment_name: cf-warden
     use_datadog: true
     use_tsdb: false
   databases:
@@ -2433,25 +2435,25 @@ properties:
     allow_networks: []
     deny_networks: []
     directory_server_protocol: https
-    disk_mb: 100000
+    disk_mb: 16384
     disk_overcommit_factor: 2
     evacuation_bail_out_time_in_seconds: 0
     instance_disk_inode_limit: 200000
     kernel_network_tuning_enabled: false
     logging_level: debug
-    memory_mb: 81960
+    memory_mb: 8192
     memory_overcommit_factor: 3
     staging_disk_inode_limit: 200000
     staging_disk_limit_mb: 4096
   description: Cloud Foundry sponsored by Pivotal
   disk_quota_enabled: false
-  domain: apps.cityindex.logsearch.io
+  domain: 10.244.0.34.xip.io
   etcd_metrics_server:
     nats:
       machines:
       - 10.244.0.6
-      password: REPLACE_ME
-      username: REPLACE_ME
+      password: n8pz0saqu5Vib0f5W1RV
+      username: n8pz0saqu5Vib0f5W1RV
   logger_endpoint: null
   loggregator:
     blacklisted_syslog_ranges: null
@@ -2460,17 +2462,16 @@ properties:
     servers:
       z1:
       - 10.244.0.14
-      z2:
-      - 10.244.2.14
+      z2: []
   loggregator_endpoint:
-    shared_secret: REPLACE_ME
+    shared_secret: n8pz0saqu5Vib0f5W1RV
   login:
     brand: oss
     catalina_opts: -Xmx384m -XX:MaxPermSize=128m
     links:
-      home: https://console.apps.cityindex.logsearch.io
-      passwd: https://console.apps.cityindex.logsearch.io/password_resets/new
-      signup: https://console.apps.cityindex.logsearch.io/register
+      home: https://console.10.244.0.34.xip.io
+      passwd: https://console.10.244.0.34.xip.io/password_resets/new
+      signup: https://console.10.244.0.34.xip.io/register
     protocol: http
     uaa_certificate: null
     url: null
@@ -2479,10 +2480,10 @@ properties:
     debug: false
     machines:
     - 10.244.0.6
-    password: REPLACE_ME
+    password: n8pz0saqu5Vib0f5W1RV
     port: 4222
     trace: false
-    user: REPLACE_ME
+    user: n8pz0saqu5Vib0f5W1RV
   nfs_server:
     address: null
     network: 10.244.0.0/30
@@ -2490,32 +2491,32 @@ properties:
   request_timeout_in_seconds: 300
   router:
     status:
-      password: REPLACE_ME
-      user: REPLACE_ME
+      password: n8pz0saqu5Vib0f5W1RV
+      user: n8pz0saqu5Vib0f5W1RV
   ssl:
     skip_cert_verify: true
   support_address: http://support.cloudfoundry.com
   syslog_aggregator: null
-  system_domain: apps.cityindex.logsearch.io
+  system_domain: 10.244.0.34.xip.io
   system_domain_organization: null
   uaa:
     admin:
-      client_secret: REPLACE_ME
+      client_secret: n8pz0saqu5Vib0f5W1RV
     batch:
-      password: REPLACE_ME
-      username: REPLACE_ME
+      password: n8pz0saqu5Vib0f5W1RV
+      username: n8pz0saqu5Vib0f5W1RV
     catalina_opts: -Xmx384m -XX:MaxPermSize=128m
     cc:
-      client_secret: REPLACE_ME
+      client_secret: n8pz0saqu5Vib0f5W1RV
     clients:
       app-direct:
         access-token-validity: 1209600
         authorities: app_direct_invoice.write
         authorized-grant-types: authorization_code,client_credentials,password,refresh_token,implicit
         override: true
-        redirect-uri: https://console.apps.cityindex.logsearch.io
+        redirect-uri: https://console.10.244.0.34.xip.io
         refresh-token-validity: 1209600
-        secret: REPLACE_ME
+        secret: n8pz0saqu5Vib0f5W1RV
       cc_service_broker_client:
         authorities: clients.read,clients.write,clients.admin
         authorized-grant-types: client_credentials
@@ -2526,51 +2527,81 @@ properties:
         authorities: scim.write,scim.read,cloud_controller.read,cloud_controller.write,password.write,uaa.admin,uaa.resource,cloud_controller.admin,billing.admin
         authorized-grant-types: authorization_code,client_credentials
         override: true
-        redirect-uri: https://console.apps.cityindex.logsearch.io/oauth/callback
+        redirect-uri: https://console.10.244.0.34.xip.io/oauth/callback
         refresh-token-validity: 1209600
         scope: openid,cloud_controller.read,cloud_controller.write,password.write,console.admin,console.support
-        secret: REPLACE_ME
+        secret: n8pz0saqu5Vib0f5W1RV
       login:
         authorities: oauth.login
         authorized-grant-types: authorization_code,client_credentials,refresh_token
         override: true
-        redirect-uri: http://login.apps.cityindex.logsearch.io
+        redirect-uri: http://login.10.244.0.34.xip.io
         scope: openid,oauth.approvals
-        secret: REPLACE_ME
+        secret: n8pz0saqu5Vib0f5W1RV
       servicesmgmt:
         authorities: uaa.resource,oauth.service,clients.read,clients.write,clients.secret
         authorized-grant-types: authorization_code,client_credentials,password,implicit
         autoapprove: true
         override: true
-        redirect-uri: http://servicesmgmt.apps.cityindex.logsearch.io/auth/cloudfoundry/callback
+        redirect-uri: http://servicesmgmt.10.244.0.34.xip.io/auth/cloudfoundry/callback
         scope: openid,cloud_controller.read,cloud_controller.write
-        secret: REPLACE_ME
+        secret: n8pz0saqu5Vib0f5W1RV
       space-mail:
         access-token-validity: 1209600
         authorities: scim.read,scim.write,cloud_controller.admin
         authorized-grant-types: client_credentials
         override: true
         refresh-token-validity: 1209600
-        secret: REPLACE_ME
+        secret: n8pz0saqu5Vib0f5W1RV
       support-services:
         access-token-validity: 1209600
         authorities: portal.users.read
         authorized-grant-types: authorization_code,client_credentials
-        redirect-uri: http://support-signon.apps.cityindex.logsearch.io
+        redirect-uri: http://support-signon.10.244.0.34.xip.io
         refresh-token-validity: 1209600
         scope: scim.write,scim.read,openid,cloud_controller.read,cloud_controller.write
-        secret: REPLACE_ME
+        secret: n8pz0saqu5Vib0f5W1RV
     jwt:
       signing_key: '-----BEGIN RSA PRIVATE KEY-----
 
-        REPLACE_ME
+        MIICWwIBAAKBgQC15sJQFOgAqvcYA/0I3ezvzbjflVYfJRM0qUMuu47HstV/enwn
+
+        7NjmwA/g5wKmh1bMT7bwz1YmLKWEKalT8lVM9aoQrLCGKk+pH7WqZ43eBKaRTqqp
+
+        mRo5mzBDumuPh34Xl3cG1B4mt8zuGk1970cg5Fim8Zuk8Dg7tmgQcORQxQIDAQAB
+
+        AoGAe3hwazVVqaZi5P1IE224d6oXlERk2e0rlTJTdPRA3ZKpUseMYPlm3XJ/FLUZ
+
+        2nnBVBvD3L+QBYeGrigtVNsIRHecfiQbiMTeu4NUHldzjsKCkdKhx0xiV4txPfCo
+
+        +tC2l+apWa9Yax+qdjb83qSqJU7rH0V6w/+UY0Mp4Ft/lsECQQDt+qMd2D7ugEtd
+
+        MRhkeww15oT+KaOcOWpKNfgD6dZouG/uBgkXeIROcw/DhIVKRL/wPd3QcwSxP89G
+
+        l0G52TjVAkEAw60GHmGzzl/1NoS4zS5NkxmuobqTuHfAZT9GlgQQwVpXtDUB5jrw
+
+        TTOCDxvyAxPfkbOi7ooqjEEkORfLiUawMQJAe2kYoed8ay545rEJF0KASItsuGlb
+
+        gS59IlLudQkUuWW8FdFncZZ79jrRF/FnNeaFKs7KcsjSzCBtGwxhd0FgqQJARQAQ
+
+        dkoxo4aG67ClkgTP6h1WTUWDrbrcp1dGxsOsPOJkpvFCODN0ZWTSag2Kq7coUTKt
+
+        M7yZAFhAM7nGViQNIQJAHR7GOkno+Mg4tyfIQ+Uqc50bAUgHUaNxGBkUB+JaElti
+
+        v9Yt8ZaZkrB5T4HSsadOULD9MEo+v5xtlbYMJV5BNw==
 
         -----END RSA PRIVATE KEY-----
 
 '
       verification_key: '-----BEGIN PUBLIC KEY-----
 
-        REPLACE_ME
+        MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQC15sJQFOgAqvcYA/0I3ezvzbjf
+
+        lVYfJRM0qUMuu47HstV/enwn7NjmwA/g5wKmh1bMT7bwz1YmLKWEKalT8lVM9aoQ
+
+        rLCGKk+pH7WqZ43eBKaRTqqpmRo5mzBDumuPh34Xl3cG1B4mt8zuGk1970cg5Fim
+
+        8Zuk8Dg7tmgQcORQxQIDAQAB
 
         -----END PUBLIC KEY-----
 
@@ -2582,15 +2613,15 @@ properties:
       userids_enabled: false
       users:
       - admin|admin|scim.write,scim.read,openid,cloud_controller.admin,clients.read,clients.write
-    url: https://uaa.apps.cityindex.logsearch.io
+    url: https://uaa.10.244.0.34.xip.io
   uaadb:
-    address: REPLACE_ME
+    address: 10.244.0.30
     databases:
     - citext: true
       name: uaadb
       tag: uaa
-    db_scheme: mysql
-    port: 3306
+    db_scheme: postgresql
+    port: 5524
     roles:
     - name: uaaadmin
       password: admin
@@ -2627,7 +2658,7 @@ resource_pools:
     name: random
   name: medium_z2
   network: cf2
-  size: 1
+  size: 0
   stemcell:
     name: bosh-warden-boshlite-ubuntu
     version: latest
@@ -2675,7 +2706,7 @@ resource_pools:
     name: random
   name: router_z2
   network: cf2
-  size: 0
+  size: 1
   stemcell:
     name: bosh-warden-boshlite-ubuntu
     version: latest
