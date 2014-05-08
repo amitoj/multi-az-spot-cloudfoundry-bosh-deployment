@@ -13,64 +13,30 @@ releases:
     version: 169
 
 networks:
-  - name: z1_public
+  - name: cf1
     type: manual
     subnets:
-    - range: 10.13.0.0/21
-      name: eu-west-1a/public
-      reserved:
-      - 10.13.0.0 - 10.13.0.9
+    - range: 10.13.1.16/28
+      name: main/eu-west-1a/public/apps.cityindex.logsearch.io
       static:
-      - 10.13.0.0 - 10.13.0.254  # How do we avoid conflicting with other deployments in this subnet?
-      gateway: 10.13.0.0.1
+      - 10.13.1.17 - 10.13.1.23  # dynamic: 10.13.1.24 - 10.13.1.31
     cloud_properties:
-      subnet: "subnet-aaaaaa"
+      subnet: "subnet-dfd021ba"
       security_groups:
-      - "vpc-internal-all"
-      - "trusted-web"
-  - name: z1_private
+      - "cradle-cityindex-logsearch-io-VPC-QN3W2O3CCFTS-SecuritygroupInternalAll-6GY3CNMM6S73" # internal-all
+      - "cradle-cityindex-logsearch-io-SecurityGroups-1BICD6I7VV7VO-TrustedWeb-46RU0YIUT1YD" # trusted-web
+  - name: cf2
     type: manual
     subnets:
-    - range: 10.13.8.0/21
-      name: eu-west-1a/public
-      reserved:
-      - 10.13.8.2 - 10.13.8.9
+    - range: 10.13.17.16/28
+      name: main/eu-west-1b/public/apps.cityindex.logsearch.io
       static:
-      - 10.13.8.10 - 10.13.8.254
-      gateway: 10.13.8.1
-    cloud_properties:
-      subnet: "subnet-bbbbbb"
-      security_groups:
-      - "vpc-internal-all"
-  - name: z2_public
-    type: manual
-    subnets:
-    - range: 10.13.16.0.0/21
-      name: eu-west-1b/public
-      reserved:
-      - 10.13.16.2 - 10.13.16.9
-      static:
-      - 10.13.16.10 - 10.13.16.254
-      gateway: 10.13.16.1
+      - 10.13.17.17 - 10.13.17.23  # dynamic: 10.13.17.24 - 10.13.17.31
       cloud_properties:
-        subnet: "subnet-ccccccc"
+        subnet: "subnet-27c9d453"
         security_groups:
-        - "vpc-internal-all"
-        - "trusted-web"
-  - name: z2_private
-    type: manual
-    subnets:
-    - range: 10.13.24.0.0/21
-      name: eu-west-1b/private
-      reserved:
-      - 10.13.24.2 - 10.13.24.9
-      static:
-      - 10.13.24.10 - 10.13.24.254
-      gateway: 10.13.24.1
-      cloud_properties:
-        subnet: "subnet-dddddd"
-        security_groups:
-        - "vpc-internal-all"
+        - "cradle-cityindex-logsearch-io-VPC-QN3W2O3CCFTS-SecuritygroupInternalAll-6GY3CNMM6S73" # internal-all
+        - "cradle-cityindex-logsearch-io-SecurityGroups-1BICD6I7VV7VO-TrustedWeb-46RU0YIUT1YD" # trusted-web
 
 # Switch jobs on and off here
 jobs:
@@ -155,8 +121,8 @@ properties:
     srv_api_uri: (( "http://api." domain ))
 
   dea_next:
-    memory_mb: 81960
-    disk_mb: 100000
+    memory_mb: 8196
+    disk_mb: 10000
 
   template_only:
     aws:
