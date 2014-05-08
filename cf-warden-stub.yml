@@ -7,13 +7,9 @@ releases:
 
 # Switch jobs on and off here
 jobs:
-  - name: postgres_z1  #NB - these appear to be SPOFs
+  - name: postgres_z1 #NB - these appear to be SPOFs
     instances: 1
-
   - name: ha_proxy_z1 #SPOF?
-    instances: 1
-
-  - name: login_z1  #SPOF?
     instances: 1
 
   - name: nats_z1
@@ -72,6 +68,9 @@ jobs:
     instances: 0
 
 #NOT USED
+  - name: login_z1  
+    instances: 0
+    
   - name: stats_z1
     instances: 0
   - name: stats_z2
