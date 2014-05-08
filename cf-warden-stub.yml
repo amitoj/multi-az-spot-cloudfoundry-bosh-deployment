@@ -29,9 +29,9 @@ jobs:
 
   - name: clock_global
     instances: 0
+
   - name: etcd_leader_z1
     instances: 1
-
   - name: etcd_z1
     instances: 0
   - name: etcd_z2
@@ -40,7 +40,7 @@ jobs:
   - name: router_z1
     instances: 1
   - name: router_z2
-    instances: 1
+    instances: 0
 
   - name: runner_z1
     instances: 1
@@ -70,7 +70,7 @@ jobs:
 #NOT USED
   - name: login_z1  
     instances: 0
-    
+
   - name: stats_z1
     instances: 0
   - name: stats_z2

@@ -72,27 +72,81 @@ networks:
         security_groups:
         - "vpc-internal-all"
 
+# Switch jobs on and off here
 jobs:
-  - name: loggregator_z1
+  - name: postgres_z1 #NB - these appear to be SPOFs
+    instances: 1
+  - name: ha_proxy_z1 #SPOF?
     instances: 1
 
-  - name: loggregator_z2
+  - name: nats_z1
     instances: 1
-
-  - name: router_z2
+  - name: nats_z2
     instances: 0
 
-  - name: runner_z2
-    instances: 0
-
-  - name: uaa_z2
-    instances: 0
-
+  - name: api_z1
+    instances: 1
   - name: api_z2
     instances: 0
 
-  - name: taskmaster_z2
+  - name: api_worker_z1
     instances: 0
+  - name: api_worker_z2
+    instances: 0
+
+  - name: clock_global
+    instances: 0
+
+  - name: etcd_leader_z1
+    instances: 1
+  - name: etcd_z1
+    instances: 0
+  - name: etcd_z2
+    instances: 0
+
+  - name: router_z1
+    instances: 1
+  - name: router_z2
+    instances: 0
+
+  - name: runner_z1
+    instances: 1
+  - name: runner_z2
+    instances: 0
+
+  - name: uaa_z1
+    instances: 1
+  - name: uaa_z2
+    instances: 0
+
+  - name: hm9000_z1
+    instances: 1
+  - name: hm9000_z2
+    instances: 0
+
+  - name: loggregator_trafficcontroller_z1
+    instances: 1
+  - name: loggregator_trafficcontroller_z2
+    instances: 0
+
+  - name: loggregator_z1
+    instances: 1
+  - name: loggregator_z2
+    instances: 0
+
+#NOT USED
+  - name: login_z1  
+    instances: 0
+
+  - name: stats_z1
+    instances: 0
+  - name: stats_z2
+    instances: 0    
+
+  - name: logs_z1
+    instances: 0
+  - name: logs_z1
+    instances: 0   
 
 properties:
   domain: apps.cityindex.logsearch.io
@@ -100,45 +154,17 @@ properties:
   cc:
     srv_api_uri: (( "http://api." domain ))
 
-  dea_next:
-    memory_mb: 81960
-    disk_mb: 100000
+  # dea_next:
+  #   memory_mb: 81960
+  #   disk_mb: 100000
 
   template_only:
     aws:
-      access_key_id: REPLACE_ME
-      secret_access_key: REPLACE_ME
-      availability_zone: REPLACE_ME
-      availability_zone2: REPLACE_ME
+      availability_zone: eu-west-1a
+      availability_zone2: eu-west-1b
       subnet_ids:
-        cf1: REPLACE_ME
-        cf2: REPLACE_ME
-
-  ccdb: &ccdb
-    db_scheme: mysql
-    roles:
-    - tag: admin
-      name: REPLACE_ME
-      password: REPLACE_ME
-    databases:
-    - tag: cc
-      name: ccdb
-    address: REPLACE_ME
-    port: 3306
-
-  uaadb:
-    db_scheme: mysql
-    roles:
-    - tag: admin
-      name: REPLACE_ME
-      password: REPLACE_ME
-    databases:
-    - tag: uaa
-      name: uaadb
-    address: REPLACE_ME
-    port: 3306
-
-  ccdb_ng: *ccdb
+        cf1: subnet-dfd021ba
+        cf2: subnet-27c9d453
 
   login:
     protocol: http
