@@ -82,7 +82,7 @@ jobs:
   - name: nats_z1
     instances: 1
   - name: nats_z2
-    instances: 0
+    instances: 1
 
   - name: api_z1
     instances: 1
@@ -154,9 +154,9 @@ properties:
   cc:
     srv_api_uri: (( "http://api." domain ))
 
-  # dea_next:
-  #   memory_mb: 81960
-  #   disk_mb: 100000
+  dea_next:
+    memory_mb: 81960
+    disk_mb: 100000
 
   template_only:
     aws:
