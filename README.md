@@ -32,11 +32,15 @@ So, how can you take advantage of these massive spot market savings?
 
 And that is what this repository is all about :)
 
+#### Generating an AWS manifest
+
+1.  Copy `cf-shared-secrets.yml.SAMPLE` to `cf-shared-secrets.yml`.  Replace REPLACE_ME tokens
+
 ```
 ./generate_deployment_manifest aws cf-aws-stub.yml cf-shared-secrets.yml > deployment_manifest_aws.yml
 ```
 
-
+#### Generating an Bosh-lite / Warden manifest
 ```
 ./generate_deployment_manifest warden cf-warden-stub.yml cf-shared-secrets.yml > deployment_manifest_warden.yml
 ```
