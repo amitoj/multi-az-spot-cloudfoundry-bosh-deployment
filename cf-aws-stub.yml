@@ -13,6 +13,9 @@ releases:
     version: 169
 
 networks:
+  - name: floating
+    type: vip
+    cloud_properties: {}
   - name: cf1
     type: manual
     subnets:
@@ -44,6 +47,9 @@ jobs:
     instances: 1
   - name: ha_proxy_z1 #SPOF?
     instances: 1
+    networks:
+      - name: floating
+        static_ips: 54.72.132.94
 
   - name: nats_z1
     instances: 1

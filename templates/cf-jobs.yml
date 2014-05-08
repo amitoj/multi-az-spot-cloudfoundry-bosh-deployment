@@ -43,6 +43,8 @@ jobs:
     networks:
       - name: cf1
         static_ips: ~
+      - name: floating
+        static_ips: ~
     properties:
       networks: (( meta.networks.z1 ))
       ha_proxy:
