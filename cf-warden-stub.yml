@@ -3,7 +3,7 @@ director_uuid: f0588560-08a8-4ae2-914a-b9e8b12d9303
 
 releases:
   - name: cf
-    version: 169
+    version: 170
 
 # Switch jobs on and off here
 jobs:
@@ -30,10 +30,8 @@ jobs:
   - name: clock_global
     instances: 0
 
-  - name: etcd_leader_z1
-    instances: 1
   - name: etcd_z1
-    instances: 0
+    instances: 1
   - name: etcd_z2
     instances: 0
 
@@ -67,10 +65,18 @@ jobs:
   - name: loggregator_z2
     instances: 0
 
-#NOT USED
   - name: login_z1  
+    instances: 1
+  - name: login_z2  
     instances: 0
 
+#Tests
+  # - name: acceptance_tests
+  #   instances: 0
+  # - name: smoke_tests
+  #   instances: 0
+
+#NOT USED
   - name: stats_z1
     instances: 0
   - name: stats_z2

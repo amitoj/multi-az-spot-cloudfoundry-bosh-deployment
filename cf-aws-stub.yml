@@ -3,53 +3,99 @@ meta:
   environment: apps.cityindex.logsearch.io
 
   stemcell:
-    name: bosh-aws-xen-ubuntu
+    name: bosh-aws-xen-ubuntu-lucid
     version: latest
 
-director_uuid: f38e81de-d07b-4b56-b691-4f005745575b
+director_uuid: 8f300da5-1b35-4491-a7cf-6117091af6f5
 
 releases:
   - name: cf
-    version: 169
+    version: 170
 
 networks:
   - name: floating
     type: vip
     cloud_properties: {}
+  - name: cf1_public
+    type: manual
+    subnets:
+    - range: 10.13.1.16/29
+      name: main/eu-west-1a/public/apps.cityindex.logsearch.io/trusted-web
+      static:
+      - 10.13.1.17 - 10.13.1.20  # dynamic: 10.13.1.21 - 10.13.1.23
+      cloud_properties:
+        subnet: "subnet-dfd021ba"
+        security_groups:
+        - "cradle-cityindex-logsearch-io-VPC-QN3W2O3CCFTS-SecuritygroupInternalAll-6GY3CNMM6S73" # internal-all
+        - "cradle-cityindex-logsearch-io-SecurityGroups-1BICD6I7VV7VO-TrustedWeb-46RU0YIUT1YD" # trusted-web
   - name: cf1
     type: manual
     subnets:
-    - range: 10.13.1.16/28
-      name: main/eu-west-1a/public/apps.cityindex.logsearch.io
+    - range: 10.13.8.64/26
+      name: main/eu-west-1a/private/apps.cityindex.logsearch.io
       static:
-      - 10.13.1.17 - 10.13.1.23  # dynamic: 10.13.1.24 - 10.13.1.31
-    cloud_properties:
-      subnet: "subnet-dfd021ba"
-      security_groups:
-      - "cradle-cityindex-logsearch-io-VPC-QN3W2O3CCFTS-SecuritygroupInternalAll-6GY3CNMM6S73" # internal-all
-      - "cradle-cityindex-logsearch-io-SecurityGroups-1BICD6I7VV7VO-TrustedWeb-46RU0YIUT1YD" # trusted-web
-  - name: cf2
+      - 10.13.8.65 - 10.13.8.100  # dynamic: 10.13.8.101 - 10.13.8.126
+      cloud_properties:
+        subnet: "subnet-dcd021b9"
+        security_groups:
+        - "cradle-cityindex-logsearch-io-VPC-QN3W2O3CCFTS-SecuritygroupInternalAll-6GY3CNMM6S73" # internal-all
+  - name: cf2_public
     type: manual
     subnets:
-    - range: 10.13.17.16/28
-      name: main/eu-west-1b/public/apps.cityindex.logsearch.io
+    - range: 10.13.17.16/29
+      name: main/eu-west-1b/public/apps.cityindex.logsearch.io/trusted-web
       static:
-      - 10.13.17.17 - 10.13.17.23  # dynamic: 10.13.17.24 - 10.13.17.31
+      - 10.13.17.17 - 10.13.17.20  # dynamic: 10.13.17.21 - 10.13.17.23
       cloud_properties:
         subnet: "subnet-27c9d453"
         security_groups:
         - "cradle-cityindex-logsearch-io-VPC-QN3W2O3CCFTS-SecuritygroupInternalAll-6GY3CNMM6S73" # internal-all
         - "cradle-cityindex-logsearch-io-SecurityGroups-1BICD6I7VV7VO-TrustedWeb-46RU0YIUT1YD" # trusted-web
+  - name: cf2
+    type: manual
+    subnets:
+    - range: 10.13.24.64/26
+      name: main/eu-west-1b/private/apps.cityindex.logsearch.io
+      static:
+      - 10.13.24.65 - 10.13.24.100  # dynamic: 10.13.24.101 - 10.13.24.126
+      cloud_properties:
+        subnet: "subnet-26c9d452"
+        security_groups:
+        - "cradle-cityindex-logsearch-io-VPC-QN3W2O3CCFTS-SecuritygroupInternalAll-6GY3CNMM6S73" # internal-all
+  - name: cf3
+    type: manual
+    subnets:
+    - range: 10.13.40.64/26
+      name: main/eu-west-1c/private/apps.cityindex.logsearch.io
+      static:
+      - 10.13.40.65 - 10.13.40.100  # dynamic: 10.13.40.101 - 10.13.40.126
+      cloud_properties:
+        subnet: "subnet-72fac834"
+        security_groups:
+        - "cradle-cityindex-logsearch-io-VPC-QN3W2O3CCFTS-SecuritygroupInternalAll-6GY3CNMM6S73" # internal-all
 
 # Switch jobs on and off here
 jobs:
-  - name: postgres_z1 #NB - these appear to be SPOFs
+  #NB - SPOF
+  - name: postgres_z1 
     instances: 1
-  - name: ha_proxy_z1 #SPOF?
+
+  - name: ha_proxy_z1 
     instances: 1
     networks:
       - name: floating
         static_ips: 54.72.132.94
+
+  - name: ha_proxy_z2
+    instances: 1
+    networks:
+      - name: floating
+        static_ips: 54.76.0.18
+
+  - name: router_z1
+    instances: 1
+  - name: router_z2
+    instances: 1
 
   - name: nats_z1
     instances: 1
@@ -59,7 +105,50 @@ jobs:
   - name: api_z1
     instances: 1
   - name: api_z2
-    instances: 0
+    instances: 1
+
+  - name: etcd_z1
+    instances: 1
+  - name: etcd_z2
+    instances: 1
+
+  - name: runner_z1
+    instances: 1
+  - name: runner_z2
+    instances: 1
+
+  - name: uaa_z1
+    instances: 1
+  - name: uaa_z2
+    instances: 1
+
+  - name: hm9000_z1
+    instances: 1
+  - name: hm9000_z2
+    instances: 1
+
+  - name: loggregator_trafficcontroller_z1
+    instances: 1
+  - name: loggregator_trafficcontroller_z2
+    instances: 1
+
+  - name: loggregator_z1
+    instances: 1
+  - name: loggregator_z2
+    instances: 1
+
+  - name: login_z1  
+    instances: 1
+  - name: login_z2
+    instances: 1
+
+#Tests
+  # - name: acceptance_tests
+  #   instances: 0
+  # - name: smoke_tests
+  #   instances: 0
+
+#NOT USED
 
   - name: api_worker_z1
     instances: 0
@@ -67,47 +156,6 @@ jobs:
     instances: 0
 
   - name: clock_global
-    instances: 0
-
-  - name: etcd_leader_z1
-    instances: 1
-  - name: etcd_z1
-    instances: 0
-  - name: etcd_z2
-    instances: 0
-
-  - name: router_z1
-    instances: 1
-  - name: router_z2
-    instances: 0
-
-  - name: runner_z1
-    instances: 1
-  - name: runner_z2
-    instances: 0
-
-  - name: uaa_z1
-    instances: 1
-  - name: uaa_z2
-    instances: 0
-
-  - name: hm9000_z1
-    instances: 1
-  - name: hm9000_z2
-    instances: 0
-
-  - name: loggregator_trafficcontroller_z1
-    instances: 1
-  - name: loggregator_trafficcontroller_z2
-    instances: 0
-
-  - name: loggregator_z1
-    instances: 1
-  - name: loggregator_z2
-    instances: 0
-
-#NOT USED
-  - name: login_z1  
     instances: 0
 
   - name: stats_z1
@@ -121,7 +169,11 @@ jobs:
     instances: 0   
 
 properties:
-  domain: apps.cityindex.logsearch.io
+  domain: apps-spot.cityindex.logsearch.io
+
+  logger_endpoint:
+    use_ssl: false
+    port: 443
 
   cc:
     srv_api_uri: (( "http://api." domain ))
@@ -132,14 +184,24 @@ properties:
 
   template_only:
     aws:
+      region: eu-west-1
       availability_zone: eu-west-1a
       availability_zone2: eu-west-1b
       subnet_ids:
+        cf1_public: subnet-dfd021ba
+        cf2_public: subnet-27c9d453
         cf1: subnet-dfd021ba
         cf2: subnet-27c9d453
+      spot_bid_prices:
+        m3_medium: 0.02
+        m3_large: 0.03
+        m1_xlarge: 0.05
 
   login:
     protocol: http
+
+  ssl:
+    skip_cert_verify: true
 
   uaa:
     no_ssl: true

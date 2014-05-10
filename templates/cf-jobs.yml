@@ -7,6 +7,14 @@ meta:
     name: cf
 
   networks:
+    z1_public:
+      apps: cf1-public
+      management: cf1-public
+
+    z2_public:
+      apps: cf2-public
+      management: cf2-public
+
     z1:
       apps: cf1
       management: cf1
@@ -40,15 +48,28 @@ jobs:
     template: haproxy
     instances: 0
     resource_pool: router_z1
-    networks:
+    default_networks:
       - name: cf1
         static_ips: ~
-      - name: floating
-        static_ips: ~
+    networks: (( merge || default_networks ))
     properties:
-      networks: (( meta.networks.z1 ))
-      ha_proxy:
-        ssl_pem: ~
+      networks: (( meta.networks.z1_public ))
+      router:
+        servers:
+          z1: (( jobs.router_z1.networks.cf1.static_ips ))
+          z2: (( jobs.router_z2.networks.cf2.static_ips ))
+
+  - name: ha_proxy_z2
+    release: (( meta.release.name ))
+    template: haproxy
+    instances: 0
+    resource_pool: router_z2
+    default_networks:
+      - name: cf1
+        static_ips: ~
+    networks: (( merge || default_networks ))
+    properties:
+      networks: (( meta.networks.z2_public ))
       router:
         servers:
           z1: (( jobs.router_z1.networks.cf1.static_ips ))
@@ -124,7 +145,7 @@ jobs:
     release: (( meta.release.name ))
     template: postgres
     instances: 0
-    resource_pool: medium_z1
+    resource_pool: small_z1
     persistent_disk: 4096
     networks:
     - name: cf1
@@ -161,6 +182,16 @@ jobs:
       - name: cf1
     properties:
       networks: (( meta.networks.z1 ))
+
+  - name: login_z2
+    release: (( meta.release.name ))
+    template: login
+    instances: 1
+    resource_pool: medium_z2
+    networks:
+      - name: cf2
+    properties:
+      networks: (( meta.networks.z2 ))
 
   - name: api_z1
     release: (( meta.release.name ))
@@ -236,22 +267,6 @@ jobs:
         host: (( meta.loggregator_endpoint.z2.host ))
       nfs_server: (( meta.nfs_server ))
 
-  - name: etcd_leader_z1
-    release: (( meta.release.name ))
-    templates:
-      - name: etcd
-        release: (( meta.release.name ))
-      - name: etcd_metrics_server
-        release: (( meta.release.name ))
-    instances: 1
-    persistent_disk: 10024
-    resource_pool: medium_z1
-    networks:
-      - name: cf1
-        static_ips:  (( merge ))
-    properties:
-      networks: (( meta.networks.z1 ))
-
   - name: etcd_z1
     release: (( meta.release.name ))
     templates:
@@ -259,7 +274,7 @@ jobs:
         release: (( meta.release.name ))
       - name: etcd_metrics_server
         release: (( meta.release.name ))
-    instances: 1
+    instances: 2
     persistent_disk: 10024
     resource_pool: medium_z1
     networks:
@@ -267,7 +282,6 @@ jobs:
         static_ips: (( merge ))
     properties:
       networks: (( meta.networks.z1 ))
-      leader_ip: (( jobs.etcd_leader_z1.networks.cf1.static_ips.[0] ))
 
   - name: etcd_z2
     release: (( meta.release.name ))
@@ -284,7 +298,6 @@ jobs:
         static_ips: (( merge ))
     properties:
       networks: (( meta.networks.z2 ))
-      leader_ip: (( jobs.etcd_leader_z1.networks.cf1.static_ips.[0] ))
 
   - name: hm9000_z1
     release: (( meta.release.name ))
@@ -295,7 +308,6 @@ jobs:
       - name: cf1
     properties:
       networks: (( meta.networks.z1 ))
-      etcd_ips: (( jobs.etcd_leader_z1.networks.cf1.static_ips jobs.etcd_z1.networks.cf1.static_ips jobs.etcd_z2.networks.cf2.static_ips ))
 
   - name: hm9000_z2
     release: (( meta.release.name ))
@@ -306,7 +318,6 @@ jobs:
       - name: cf2
     properties:
       networks: (( meta.networks.z2 ))
-      etcd_ips: (( jobs.etcd_leader_z1.networks.cf1.static_ips jobs.etcd_z1.networks.cf1.static_ips jobs.etcd_z2.networks.cf2.static_ips ))
 
   - name: runner_z1
     release: (( meta.release.name ))
@@ -347,7 +358,6 @@ jobs:
       - name: cf1
         static_ips: (( merge ))
     properties:
-      etcd_ips: (( jobs.etcd_leader_z1.networks.cf1.static_ips jobs.etcd_z1.networks.cf1.static_ips jobs.etcd_z2.networks.cf2.static_ips ))
       networks: (( meta.networks.z1 ))
 
   - name: loggregator_z2
@@ -359,14 +369,13 @@ jobs:
       - name: cf2
         static_ips: (( merge ))
     properties:
-      etcd_ips: (( jobs.etcd_leader_z1.networks.cf1.static_ips jobs.etcd_z1.networks.cf1.static_ips jobs.etcd_z2.networks.cf2.static_ips ))
       networks: (( meta.networks.z2 ))
 
   - name: loggregator_trafficcontroller_z1
     release: (( meta.release.name ))
     template: loggregator_trafficcontroller
     instances: 1
-    resource_pool: small_z1
+    resource_pool: medium_z1
     networks:
       - name: cf1
         static_ips: (( merge ))
@@ -393,9 +402,13 @@ jobs:
     template: gorouter
     instances: 1
     resource_pool: router_z1
-    networks:
+    default_networks:
       - name: cf1
         static_ips: (( merge ))
+    default_networks:
+      - name: cf1
+        static_ips: ~
+    networks: (( merge || default_networks ))
     properties:
       networks: (( meta.networks.z1 ))
       loggregator_endpoint:
@@ -413,6 +426,24 @@ jobs:
       networks: (( meta.networks.z2 ))
       loggregator_endpoint:
         host: (( meta.loggregator_endpoint.z2.host ))
+
+  # - name: acceptance_tests
+  #   release: (( meta.release.name ))
+  #   template: acceptance-tests
+  #   instances: 1
+  #   resource_pool: small_errand
+  #   lifecycle: errand
+  #   networks:
+  #     - name: cf1
+
+  # - name: smoke_tests
+  #   release: (( meta.release.name ))
+  #   template: smoke-tests
+  #   instances: 1
+  #   resource_pool: small_errand
+  #   lifecycle: errand
+  #   networks:
+  #     - name: cf1
 
 properties:
   support_address: (( merge || "http://support.cloudfoundry.com" ))
@@ -436,6 +467,11 @@ properties:
     machines: (( jobs.nats_z1.networks.cf1.static_ips jobs.nats_z2.networks.cf2.static_ips ))
     debug: false
     trace: false
+    monitor_port: 0
+    prof_port: 0
+
+  etcd:
+    machines: (( jobs.etcd_z1.networks.cf1.static_ips jobs.etcd_z2.networks.cf2.static_ips ))
 
   etcd_metrics_server:
     nats:
@@ -489,6 +525,9 @@ properties:
       user: (( merge ))
       password: (( merge ))
 
+  ha_proxy:
+    ssl_pem: (( merge ))
+
   syslog_aggregator: ~
 
   nfs_server:
@@ -503,3 +542,8 @@ properties:
     use_tsdb: false
 
   opentsdb: (( merge || nil ))
+
+  acceptance_tests: (( merge || nil ))
+
+  smoke_tests: (( merge || nil ))
+
