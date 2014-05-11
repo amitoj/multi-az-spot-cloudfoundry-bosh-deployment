@@ -32,9 +32,15 @@ update:
   max_in_flight: 1
   canary_watch_time: 30000-600000
   update_watch_time: 5000-600000
-  serial: true
+  serial: true # false makes every job deploy at the same time.
 
 resource_pools:
+  - name: small_ondemand_z1
+    network: cf1
+    size: (( auto ))
+    stemcell: (( meta.stemcell ))
+    cloud_properties: (( merge ))
+
   - name: small_z1
     network: cf1
     size: (( auto ))
@@ -43,6 +49,12 @@ resource_pools:
 
   - name: small_z2
     network: cf2
+    size: (( auto ))
+    stemcell: (( meta.stemcell ))
+    cloud_properties: (( merge ))
+
+  - name: small_z3
+    network: cf3
     size: (( auto ))
     stemcell: (( meta.stemcell ))
     cloud_properties: (( merge ))
@@ -59,6 +71,12 @@ resource_pools:
     stemcell: (( meta.stemcell ))
     cloud_properties: (( merge ))
 
+  - name: medium_z3
+    network: cf3
+    size: (( auto ))
+    stemcell: (( meta.stemcell ))
+    cloud_properties: (( merge ))
+
   - name: large_z1
     network: cf1
     size: (( auto ))
@@ -67,6 +85,12 @@ resource_pools:
 
   - name: large_z2
     network: cf2
+    size: (( auto ))
+    stemcell: (( meta.stemcell ))
+    cloud_properties: (( merge ))
+
+  - name: large_z3
+    network: cf3
     size: (( auto ))
     stemcell: (( meta.stemcell ))
     cloud_properties: (( merge ))
@@ -83,6 +107,12 @@ resource_pools:
     stemcell: (( meta.stemcell ))
     cloud_properties: (( merge ))
 
+  - name: runner_z3
+    network: cf3
+    size: (( auto ))
+    stemcell: (( meta.stemcell ))
+    cloud_properties: (( merge ))
+
   - name: router_z1
     network: cf1
     size: (( auto ))
@@ -91,6 +121,12 @@ resource_pools:
 
   - name: router_z2
     network: cf2
+    size: (( auto ))
+    stemcell: (( meta.stemcell ))
+    cloud_properties: (( merge ))
+
+  - name: router_z3
+    network: cf3
     size: (( auto ))
     stemcell: (( meta.stemcell ))
     cloud_properties: (( merge ))

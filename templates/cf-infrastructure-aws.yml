@@ -2,6 +2,7 @@ meta:
   zones:
     z1: (( properties.template_only.aws.availability_zone ))
     z2: (( properties.template_only.aws.availability_zone2 ))
+    z3: (( properties.template_only.aws.availability_zone3 ))
 
   fog_config:
     provider: AWS
@@ -24,10 +25,10 @@ properties:
 
   loggregator:
     blacklisted_syslog_ranges:
-    - start: 10.10.16.0
-      end: 10.10.31.255
-    - start: 10.10.80.0
-      end: 10.10.95.255
+    - start: 10.13.16.0
+      end: 10.13.31.255
+    - start: 10.13.80.0
+      end: 10.13.95.255
 
   cc:
     resource_pool:
@@ -46,14 +47,18 @@ properties:
     catalina_opts: -Xmx768m -XX:MaxPermSize=256m
 
   dea_next:
+    memory_mb: 17408 # For 17GB m2.xlarge
+    disk_mb: 320000 # 320GB
     deny_networks:
       - 169.254.0.0/16 # AWS Status
-      - 10.10.0.0/24 # BOSH network
+      - 10.13.0.0/24 # BOSH network & other core services (eg, NAT instance)
+      - (( networks.cf1_public.subnets.[0].range ))
       - (( networks.cf1.subnets.[0].range ))
+      - (( networks.cf2_public.subnets.[0].range ))
       - (( networks.cf2.subnets.[0].range ))
 
     allow_networks:
-      - 10.10.0.2/32 # Amazon DNS
+      - 10.13.0.2/32 # Amazon DNS
 
   ccdb:
     db_scheme: postgres
@@ -105,73 +110,31 @@ compilation:
     instance_type: c1.medium
     availability_zone: (( meta.zones.z1 ))
 
-default_networks:
-  - name: floating
-    type: vip
-    cloud_properties: {}
-
-  - name: cf1_public
-    type: manual
-    subnets:
-      - range: 10.10.1.0/20
-        name: default_unused
-        reserved:
-          - 10.10.1.2 - 10.10.1.9
-        static:
-          - 10.10.1.10 - 10.10.1.255
-        gateway: 10.10.1.1
-        dns:
-          - 10.10.0.2 # amazon has only 1 DNS server for the whole VPC at x.x.0.2
-        cloud_properties:
-          security_groups:
-            - cf
-          subnet: (( properties.template_only.aws.subnet_ids.cf1_public ))
-  - name: cf1
-    type: manual
-    subnets:
-      - range: 10.10.16.0/20
-        name: default_unused
-        reserved:
-          - 10.10.16.2 - 10.10.16.9
-        static:
-          - 10.10.16.10 - 10.10.16.255
-        gateway: 10.10.16.1
-        dns:
-          - 10.10.0.2 # amazon has only 1 DNS server for the whole VPC at x.x.0.2
-        cloud_properties:
-          security_groups:
-            - cf
-          subnet: (( properties.template_only.aws.subnet_ids.cf1 ))
-
-  - name: cf2
-    type: manual
-    subnets:
-      - range: 10.10.80.0/20
-        name: default_unused
-        reserved:
-          - 10.10.80.2 - 10.10.80.9
-        static:
-          - 10.10.80.10 - 10.10.80.255
-        gateway: 10.10.80.1
-        dns:
-          - 10.10.0.2 # amazon has only 1 DNS server for the whole VPC at x.x.0.2
-        cloud_properties:
-          security_groups:
-            - cf
-          subnet: (( properties.template_only.aws.subnet_ids.cf2 ))
-
-networks: (( merge || default_networks ))
+networks: (( merge ))
 
 resource_pools:
+  - name: small_ondemand_z1
+    cloud_properties:
+      instance_type: m1.small
+      availability_zone: (( meta.zones.z1 ))
+
   - name: small_z1
     cloud_properties:
       instance_type: m1.small
       availability_zone: (( meta.zones.z1 ))
+      spot_bid_price: (( properties.template_only.aws.spot_bid_prices.m1_small ))
 
   - name: small_z2
     cloud_properties:
       instance_type: m1.small
       availability_zone: (( meta.zones.z2 ))
+      spot_bid_price: (( properties.template_only.aws.spot_bid_prices.m1_small ))
+
+  - name: small_z3
+    cloud_properties:
+      instance_type: m1.small
+      availability_zone: (( meta.zones.z3 ))
+      spot_bid_price: (( properties.template_only.aws.spot_bid_prices.m1_small ))
 
   - name: medium_z1
     cloud_properties:
@@ -183,6 +146,12 @@ resource_pools:
     cloud_properties:
       instance_type: m3.medium
       availability_zone: (( meta.zones.z2 ))
+      spot_bid_price: (( properties.template_only.aws.spot_bid_prices.m3_medium ))
+
+  - name: medium_z3
+    cloud_properties:
+      instance_type: m3.medium
+      availability_zone: (( meta.zones.z3 ))
       spot_bid_price: (( properties.template_only.aws.spot_bid_prices.m3_medium ))
 
   - name: large_z1
@@ -197,17 +166,29 @@ resource_pools:
       availability_zone: (( meta.zones.z2 ))
       spot_bid_price: (( properties.template_only.aws.spot_bid_prices.m3_large ))
 
+  - name: large_z3
+    cloud_properties:
+      instance_type: m3.large
+      availability_zone: (( meta.zones.z3 ))
+      spot_bid_price: (( properties.template_only.aws.spot_bid_prices.m3_large ))
+
   - name: runner_z1
     cloud_properties:
-      instance_type: m1.xlarge
+      instance_type: m2.xlarge
       availability_zone: (( meta.zones.z1 ))
-      spot_bid_price: (( properties.template_only.aws.spot_bid_prices.m1_xlarge ))
+      spot_bid_price: (( properties.template_only.aws.spot_bid_prices.m2_xlarge ))
 
   - name: runner_z2
     cloud_properties:
-      instance_type: m1.xlarge
+      instance_type: m2.xlarge
       availability_zone: (( meta.zones.z2 ))
-      spot_bid_price: (( properties.template_only.aws.spot_bid_prices.m1_xlarge ))
+      spot_bid_price: (( properties.template_only.aws.spot_bid_prices.m2_xlarge ))
+
+  - name: runner_z3
+    cloud_properties:
+      instance_type: m2.xlarge
+      availability_zone: (( meta.zones.z3 ))
+      spot_bid_price: (( properties.template_only.aws.spot_bid_prices.m2_xlarge ))
 
   - name: router_z1
     cloud_properties:
@@ -219,6 +200,12 @@ resource_pools:
     cloud_properties:
       instance_type: m3.medium
       availability_zone: (( meta.zones.z2 ))
+      spot_bid_price: (( properties.template_only.aws.spot_bid_prices.m3_medium ))
+
+  - name: router_z3
+    cloud_properties:
+      instance_type: m3.medium
+      availability_zone: (( meta.zones.z3 ))
       spot_bid_price: (( properties.template_only.aws.spot_bid_prices.m3_medium ))
 
   - name: small_errand
@@ -252,6 +239,17 @@ jobs:
       - name: floating
         static_ips: ~
 
+  - name: ha_proxy_z3
+    instances: 0
+    networks:
+      - name: cf3_public
+        static_ips: (( static_ips(1) ))
+        default: 
+        - dns
+        - gateway
+      - name: floating
+        static_ips: ~
+
   - name: logs_z1
     instances: 0
     networks:
@@ -262,6 +260,12 @@ jobs:
     instances: 0
     networks:
       - name: cf2
+        static_ips: (( static_ips(0) ))
+
+  - name: logs_z3
+    instances: 0
+    networks:
+      - name: cf3
         static_ips: (( static_ips(0) ))
 
   - name: nats_z1
@@ -276,6 +280,12 @@ jobs:
       - name: cf2
         static_ips: (( static_ips(1) ))
 
+  - name: nats_z3
+    instances: 0
+    networks:
+      - name: cf3
+        static_ips: (( static_ips(1) ))
+
   - name: router_z1
     instances: 1
     networks:
@@ -288,6 +298,12 @@ jobs:
       - name: cf2
         static_ips: (( static_ips(5, 6, 15, 16, 17, 18, 19, 20) ))
 
+  - name: router_z3
+    instances: 0
+    networks:
+      - name: cf3
+        static_ips: (( static_ips(5, 6, 15, 16, 17, 18, 19, 20) ))
+
   - name: loggregator_z1
     instances: 2
     networks:
@@ -295,9 +311,15 @@ jobs:
         static_ips: (( static_ips(21, 22) ))
 
   - name: loggregator_z2
-    instances: 2
+    instances: 0
     networks:
       - name: cf2
+        static_ips: (( static_ips(21, 22) ))
+
+  - name: loggregator_z3
+    instances: 0
+    networks:
+      - name: cf3
         static_ips: (( static_ips(21, 22) ))
 
   - name: loggregator_trafficcontroller_z1
@@ -312,6 +334,12 @@ jobs:
       - name: cf2
         static_ips: (( static_ips(24) ))
 
+  - name: loggregator_trafficcontroller_z3
+    instances: 0
+    networks:
+      - name: cf3
+        static_ips: (( static_ips(24) ))
+
   - name: etcd_z1
     instances: 2
     networks:
@@ -322,6 +350,12 @@ jobs:
     instances: 1
     networks:
       - name: cf2
+        static_ips: (( static_ips(9) ))
+
+  - name: etcd_z3
+    instances: 0
+    networks:
+      - name: cf3
         static_ips: (( static_ips(9) ))
 
  # SPOFs

@@ -62,6 +62,18 @@ networks:
         subnet: "subnet-26c9d452"
         security_groups:
         - "cradle-cityindex-logsearch-io-VPC-QN3W2O3CCFTS-SecuritygroupInternalAll-6GY3CNMM6S73" # internal-all
+  - name: cf3_public
+    type: manual
+    subnets:
+    - range: 10.13.33.16/29
+      name: main/eu-west-1c/public/apps.cityindex.logsearch.io/trusted-web
+      static:
+      - 10.13.33.17 - 10.13.33.20  # dynamic: 10.13.33.21 - 10.13.33.23
+      cloud_properties:
+        subnet: "subnet-73fac835"
+        security_groups:
+        - "cradle-cityindex-logsearch-io-VPC-QN3W2O3CCFTS-SecuritygroupInternalAll-6GY3CNMM6S73" # internal-all
+        - "cradle-cityindex-logsearch-io-SecurityGroups-1BICD6I7VV7VO-TrustedWeb-46RU0YIUT1YD" # trusted-web
   - name: cf3
     type: manual
     subnets:
@@ -85,61 +97,93 @@ jobs:
     networks:
       - name: floating
         static_ips: 54.72.132.94
-
   - name: ha_proxy_z2
     instances: 1
     networks:
       - name: floating
         static_ips: 54.76.0.18
+  - name: ha_proxy_z3
+    instances: 1
+    networks:
+      - name: floating
+        static_ips: 54.72.9.152
 
   - name: router_z1
     instances: 1
   - name: router_z2
+    instances: 1
+  - name: router_z3
     instances: 1
 
   - name: nats_z1
     instances: 1
   - name: nats_z2
     instances: 1
+  - name: nats_z3
+    instances: 1
 
   - name: api_z1
     instances: 1
   - name: api_z2
+    instances: 1
+  - name: api_z3
+    instances: 1
+  - name: api_worker_z1
+    instances: 1
+  - name: api_worker_z2
+    instances: 1
+  - name: api_worker_z3
+    instances: 1
+  - name: clock_global
     instances: 1
 
   - name: etcd_z1
     instances: 1
   - name: etcd_z2
     instances: 1
+  - name: etcd_z3
+    instances: 1
 
   - name: runner_z1
     instances: 1
   - name: runner_z2
+    instances: 1
+  - name: runner_z3
     instances: 1
 
   - name: uaa_z1
     instances: 1
   - name: uaa_z2
     instances: 1
+  - name: uaa_z3
+    instances: 1
 
   - name: hm9000_z1
     instances: 1
   - name: hm9000_z2
+    instances: 1
+  - name: hm9000_z3
     instances: 1
 
   - name: loggregator_trafficcontroller_z1
     instances: 1
   - name: loggregator_trafficcontroller_z2
     instances: 1
+  - name: loggregator_trafficcontroller_z3
+    instances: 1
 
   - name: loggregator_z1
     instances: 1
   - name: loggregator_z2
     instances: 1
+  - name: loggregator_z3
+    instances: 1
 
   - name: login_z1  
     instances: 1
   - name: login_z2
+    instances: 1
+  - name: login_z3
     instances: 1
 
 #Tests
@@ -150,22 +194,18 @@ jobs:
 
 #NOT USED
 
-  - name: api_worker_z1
-    instances: 0
-  - name: api_worker_z2
-    instances: 0
-
-  - name: clock_global
-    instances: 0
-
   - name: stats_z1
     instances: 0
   - name: stats_z2
     instances: 0    
+  - name: stats_z3
+    instances: 0    
 
   - name: logs_z1
     instances: 0
-  - name: logs_z1
+  - name: logs_z2
+    instances: 0   
+  - name: logs_z3
     instances: 0   
 
 properties:
@@ -177,25 +217,32 @@ properties:
 
   cc:
     srv_api_uri: (( "http://api." domain ))
-
-  dea_next:
-    memory_mb: 8196
-    disk_mb: 10000
+    newrelic:
+      license_key: 323f884773650b12aa4b3c64f008ac134db89a86
+      monitor_mode: true
+      capture_params: true
+      transaction_tracer:
+        enabled: true
+        record_sql: true
 
   template_only:
     aws:
       region: eu-west-1
       availability_zone: eu-west-1a
       availability_zone2: eu-west-1b
+      availability_zone3: eu-west-1c
       subnet_ids:
         cf1_public: subnet-dfd021ba
         cf2_public: subnet-27c9d453
+        cf3_public: subnet-73fac835
         cf1: subnet-dfd021ba
         cf2: subnet-27c9d453
+        cf3: subnet-72fac834
       spot_bid_prices:
+        m1_small: 0.02
         m3_medium: 0.02
         m3_large: 0.03
-        m1_xlarge: 0.05
+        m2_xlarge: 0.03
 
   login:
     protocol: http
