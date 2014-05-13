@@ -11,8 +11,8 @@ AWS, Google and Azure are in a price war; and seem committed to matching on-dema
 
 The under reported price is that of the AWS spot market; which can be up to [*10 x cheaper* than on demand prices](http://ec2pricing.iconara.info/#!/eu-west-1?sort=ram:desc&os=linux&period=monthly).
 
-| Instance | On demand / month | 
-|----------|-------------------|
+| Instance | On demand / month | Spot / month | 
+|----------|-------------------|--------------|
 | m3.medium | $56 | $7 |
 | r3.xlarge | $358 | $29 |
 
