@@ -6,7 +6,7 @@ meta:
     name: bosh-aws-xen-ubuntu-lucid
     version: latest
 
-director_uuid: 8f300da5-1b35-4491-a7cf-6117091af6f5
+director_uuid: c78b4258-93b9-4d8b-a0b8-6f6e09bbd15a
 
 releases:
   - name: cf
@@ -24,10 +24,10 @@ networks:
       static:
       - 10.13.1.17 - 10.13.1.20  # dynamic: 10.13.1.21 - 10.13.1.23
       cloud_properties:
-        subnet: "subnet-dfd021ba"
+        subnet: "subnet-7fa65b1a"
         security_groups:
-        - "cradle-cityindex-logsearch-io-VPC-QN3W2O3CCFTS-SecuritygroupInternalAll-6GY3CNMM6S73" # internal-all
-        - "cradle-cityindex-logsearch-io-SecurityGroups-1BICD6I7VV7VO-TrustedWeb-46RU0YIUT1YD" # trusted-web
+        - "cityindex-logsearch-io-VPC-1LQRUKPK3ZOI1-SecuritygroupInternalAll-OONMEZIH0E76" # internal-all
+        - "cityindex-logsearch-io-SecurityGroups-1BG3T4WOR85IG-TrustedWeb-J2DYZTD6FJ0I" # trusted-web
   - name: cf1
     type: manual
     subnets:
@@ -36,9 +36,9 @@ networks:
       static:
       - 10.13.8.65 - 10.13.8.100  # dynamic: 10.13.8.101 - 10.13.8.126
       cloud_properties:
-        subnet: "subnet-dcd021b9"
+        subnet: "subnet-7ea65b1b"
         security_groups:
-        - "cradle-cityindex-logsearch-io-VPC-QN3W2O3CCFTS-SecuritygroupInternalAll-6GY3CNMM6S73" # internal-all
+        - "cityindex-logsearch-io-VPC-1LQRUKPK3ZOI1-SecuritygroupInternalAll-OONMEZIH0E76" # internal-all
   - name: cf2_public
     type: manual
     subnets:
@@ -47,10 +47,10 @@ networks:
       static:
       - 10.13.17.17 - 10.13.17.20  # dynamic: 10.13.17.21 - 10.13.17.23
       cloud_properties:
-        subnet: "subnet-27c9d453"
+        subnet: "subnet-c2627bb6"
         security_groups:
-        - "cradle-cityindex-logsearch-io-VPC-QN3W2O3CCFTS-SecuritygroupInternalAll-6GY3CNMM6S73" # internal-all
-        - "cradle-cityindex-logsearch-io-SecurityGroups-1BICD6I7VV7VO-TrustedWeb-46RU0YIUT1YD" # trusted-web
+        - "cityindex-logsearch-io-VPC-1LQRUKPK3ZOI1-SecuritygroupInternalAll-OONMEZIH0E76" # internal-all
+        - "cityindex-logsearch-io-SecurityGroups-1BG3T4WOR85IG-TrustedWeb-J2DYZTD6FJ0I" # trusted-web
   - name: cf2
     type: manual
     subnets:
@@ -59,9 +59,9 @@ networks:
       static:
       - 10.13.24.65 - 10.13.24.100  # dynamic: 10.13.24.101 - 10.13.24.126
       cloud_properties:
-        subnet: "subnet-26c9d452"
+        subnet: "subnet-c1627bb5"
         security_groups:
-        - "cradle-cityindex-logsearch-io-VPC-QN3W2O3CCFTS-SecuritygroupInternalAll-6GY3CNMM6S73" # internal-all
+        - "cityindex-logsearch-io-VPC-1LQRUKPK3ZOI1-SecuritygroupInternalAll-OONMEZIH0E76" # internal-all
   - name: cf3_public
     type: manual
     subnets:
@@ -70,10 +70,10 @@ networks:
       static:
       - 10.13.33.17 - 10.13.33.20  # dynamic: 10.13.33.21 - 10.13.33.23
       cloud_properties:
-        subnet: "subnet-73fac835"
+        subnet: "subnet-5480bf12"
         security_groups:
-        - "cradle-cityindex-logsearch-io-VPC-QN3W2O3CCFTS-SecuritygroupInternalAll-6GY3CNMM6S73" # internal-all
-        - "cradle-cityindex-logsearch-io-SecurityGroups-1BICD6I7VV7VO-TrustedWeb-46RU0YIUT1YD" # trusted-web
+        - "cityindex-logsearch-io-VPC-1LQRUKPK3ZOI1-SecuritygroupInternalAll-OONMEZIH0E76" # internal-all
+        - "cityindex-logsearch-io-SecurityGroups-1BG3T4WOR85IG-TrustedWeb-J2DYZTD6FJ0I" # trusted-web
   - name: cf3
     type: manual
     subnets:
@@ -82,9 +82,9 @@ networks:
       static:
       - 10.13.40.65 - 10.13.40.100  # dynamic: 10.13.40.101 - 10.13.40.126
       cloud_properties:
-        subnet: "subnet-72fac834"
+        subnet: "subnet-5580bf13"
         security_groups:
-        - "cradle-cityindex-logsearch-io-VPC-QN3W2O3CCFTS-SecuritygroupInternalAll-6GY3CNMM6S73" # internal-all
+        - "cityindex-logsearch-io-VPC-1LQRUKPK3ZOI1-SecuritygroupInternalAll-OONMEZIH0E76" # internal-all
 
 # Switch jobs on and off here
 jobs:
@@ -96,7 +96,7 @@ jobs:
     instances: 1
     networks:
       - name: floating
-        static_ips: 54.72.132.94
+        static_ips: 54.194.15.188
   - name: ha_proxy_z2
     instances: 1
     networks:
@@ -106,7 +106,7 @@ jobs:
     instances: 1
     networks:
       - name: floating
-        static_ips: 54.72.9.152
+        static_ips: 54.72.241.2
 
   - name: router_z1
     instances: 1
@@ -209,7 +209,7 @@ jobs:
     instances: 0   
 
 properties:
-  domain: apps-spot.cityindex.logsearch.io
+  domain: apps.cityindex.logsearch.io
 
   logger_endpoint:
     use_ssl: false
@@ -242,7 +242,7 @@ properties:
         m1_small: 0.02
         m3_medium: 0.02
         m3_large: 0.03
-        m2_xlarge: 0.03
+        m2_xlarge: 0.04
 
   login:
     protocol: http
