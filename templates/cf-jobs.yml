@@ -328,7 +328,7 @@ jobs:
     release: (( meta.release.name ))
     template: cloud_controller_worker
     instances: 1
-    resource_pool: small_z1
+    resource_pool: medium_z1
     persistent_disk: 0
     networks:
       - name: cf1
@@ -343,7 +343,7 @@ jobs:
     release: (( meta.release.name ))
     template: cloud_controller_worker
     instances: 0
-    resource_pool: small_z2
+    resource_pool: medium_z2
     persistent_disk: 0
     networks:
       - name: cf2
